@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA Notes</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>📝</text></svg>">
+<style>
+  :root {
+    --sidebar-w: 300px;
+    --bg: #ffffff;
+    --bg-side: #f7f8fa;
+    --border: #e3e6ea;
+    --text: #1f2328;
+    --muted: #656d76;
+    --accent: #0969da;
+    --accent-soft: #ddf0ff;
+    --code-bg: #f6f8fa;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1117;
+      --bg-side: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-soft: #10335c;
+      --code-bg: #161b22;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC",
+                 "PingFang TC", "Microsoft JhengHei", Helvetica, Arial, sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    display: flex;
+    line-height: 1.7;
+  }
+
+  /* ---------- Sidebar ---------- */
+  #sidebar {
+    width: var(--sidebar-w);
+    min-width: var(--sidebar-w);
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--bg-side);
+    border-right: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    padding: 16px 0 40px;
+  }
+  #sidebar .brand {
+    font-weight: 700;
+    font-size: 15px;
+    padding: 6px 20px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  #sidebar .search {
+    margin: 0 16px 12px;
+  }
+  #sidebar .search input {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    outline: none;
+  }
+  #sidebar .search input:focus { border-color: var(--accent); }
+
+  .file-item > a {
+    display: block;
+    padding: 7px 20px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    border-left: 3px solid transparent;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .file-item > a:hover { background: rgba(127,127,127,.08); }
+  .file-item.active > a {
+    border-left-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 600;
+  }
+  /* nested ## table of contents */
+  .toc { display: none; padding: 2px 0 6px; }
+  .file-item.active .toc { display: block; }
+  .toc a {
+    display: block;
+    padding: 4px 20px 4px 34px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 12.5px;
+    border-left: 3px solid transparent;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .toc a:hover { color: var(--text); background: rgba(127,127,127,.06); }
+  .toc a.current { color: var(--accent); border-left-color: var(--accent); }
+
+  /* ---------- Content ---------- */
+  #main { flex: 1; min-width: 0; height: 100vh; overflow-y: auto; }
+  #content {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 48px 48px 120px;
+  }
+  #content h1 { font-size: 1.9em; padding-bottom: .3em; border-bottom: 1px solid var(--border); }
+  #content h2 {
+    font-size: 1.45em;
+    margin-top: 1.8em;
+    padding-bottom: .3em;
+    border-bottom: 1px solid var(--border);
+    scroll-margin-top: 20px;
+  }
+  #content h3 { font-size: 1.2em; margin-top: 1.5em; }
+  #content a { color: var(--accent); }
+  #content code {
+    background: var(--code-bg);
+    padding: .2em .4em;
+    border-radius: 6px;
+    font-size: 85%;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, monospace;
+  }
+  #content pre {
+    background: var(--code-bg);
+    padding: 16px;
+    border-radius: 8px;
+    overflow: auto;
+    border: 1px solid var(--border);
+  }
+  #content pre code { background: none; padding: 0; }
+  #content blockquote {
+    margin: 1em 0;
+    padding: 0 1em;
+    color: var(--muted);
+    border-left: 4px solid var(--border);
+  }
+  #content table { border-collapse: collapse; width: 100%; margin: 1em 0; display: block; overflow: auto; }
+  #content th, #content td { border: 1px solid var(--border); padding: 7px 12px; }
+  #content th { background: var(--bg-side); }
+  #content img { max-width: 100%; }
+  #content hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+  .hint { color: var(--muted); }
+
+  /* ---------- Mobile ---------- */
+  #menu-btn {
+    display: none;
+    position: fixed;
+    top: 12px; left: 12px;
+    z-index: 20;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    width: 40px; height: 40px;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--text);
+  }
+  #overlay { display: none; }
+  @media (max-width: 800px) {
+    #menu-btn { display: block; }
+    #sidebar {
+      position: fixed;
+      z-index: 15;
+      transform: translateX(-100%);
+      transition: transform .2s ease;
+      box-shadow: 2px 0 12px rgba(0,0,0,.15);
+    }
+    body.nav-open #sidebar { transform: translateX(0); }
+    body.nav-open #overlay {
+      display: block;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.4);
+      z-index: 10;
+    }
+    #content { padding: 64px 20px 100px; }
+  }
+</style>
+</head>
+<body>
+  <button id="menu-btn" aria-label="選單">☰</button>
+  <div id="overlay"></div>
+
+  <nav id="sidebar">
+    <div class="brand">📝 QA Notes</div>
+    <div class="search"><input id="filter" type="search" placeholder="搜尋筆記…" autocomplete="off"></div>
+    <div id="file-list"></div>
+  </nav>
+
+  <main id="main">
+    <article id="content"><p class="hint">載入中…</p></article>
+  </main>
+
+<script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+<script>
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+
+let FILES = [];              // [{name, path}]
+let currentPath = null;
+
+// slugify a heading text into a URL-safe id
+function slugify(text) {
+  return text.trim().toLowerCase()
+    .replace(/[^\w一-鿿\- ]/g, '')
+    .replace(/\s+/g, '-') || 'section';
+}
+
+// strip ".md" and any leading path for a display label
+function labelOf(path) {
+  return path.replace(/^.*\//, '').replace(/\.md$/i, '');
+}
+
+async function loadManifest() {
+  try {
+    const res = await fetch('files.json?_=' + Date.now());
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    FILES = data.map(p => ({ path: p, name: labelOf(p) }));
+  } catch (e) {
+    $('#content').innerHTML =
+      '<h1>尚未產生檔案清單</h1><p class="hint">找不到 <code>files.json</code>。' +
+      '請確認 GitHub Action 已執行，或手動建立該檔。</p>';
+  }
+}
+
+function renderSidebar() {
+  const list = $('#file-list');
+  list.innerHTML = '';
+  FILES.forEach(f => {
+    const item = document.createElement('div');
+    item.className = 'file-item';
+    item.dataset.path = f.path;
+    const a = document.createElement('a');
+    a.href = '#' + encodeURIComponent(f.path);
+    a.textContent = f.name;
+    item.appendChild(a);
+    const toc = document.createElement('div');
+    toc.className = 'toc';
+    item.appendChild(toc);
+    list.appendChild(item);
+  });
+}
+
+async function openFile(path) {
+  const file = FILES.find(f => f.path === path) || FILES[0];
+  if (!file) return;
+  currentPath = file.path;
+
+  // highlight active file in sidebar
+  $$('.file-item').forEach(el =>
+    el.classList.toggle('active', el.dataset.path === file.path));
+
+  document.title = file.name + ' · QA Notes';
+
+  let md;
+  try {
+    const res = await fetch(encodeURI(file.path) + '?_=' + Date.now());
+    if (!res.ok) throw new Error(res.status);
+    md = await res.text();
+  } catch (e) {
+    $('#content').innerHTML = '<h1>讀取失敗</h1><p class="hint">' + file.path + '</p>';
+    return;
+  }
+
+  const html = marked.parse(md);
+  const content = $('#content');
+  content.innerHTML = html;
+  content.parentElement.scrollTop = 0;
+
+  // assign ids to every h2 and build the nested TOC
+  const toc = $('.file-item.active .toc');
+  toc.innerHTML = '';
+  const seen = {};
+  $$('#content h2').forEach(h => {
+    let id = slugify(h.textContent);
+    if (seen[id] != null) id += '-' + (++seen[id]); else seen[id] = 0;
+    h.id = id;
+    const link = document.createElement('a');
+    link.href = '#' + encodeURIComponent(file.path) + '::' + id;
+    link.textContent = h.textContent;
+    link.dataset.target = id;
+    toc.appendChild(link);
+  });
+
+  observeHeadings();
+  // if a heading anchor was requested, jump to it
+  const anchor = (location.hash.split('::')[1]) || null;
+  if (anchor) {
+    const target = document.getElementById(decodeURIComponent(anchor));
+    if (target) target.scrollIntoView();
+  }
+}
+
+// highlight the current section in the TOC while scrolling
+let io;
+function observeHeadings() {
+  if (io) io.disconnect();
+  const links = $$('.file-item.active .toc a');
+  if (!links.length) return;
+  io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.toggle('current', l.dataset.target === e.target.id));
+      }
+    });
+  }, { rootMargin: '0px 0px -75% 0px' });
+  $$('#content h2').forEach(h => io.observe(h));
+}
+
+// hash format:  #<encoded path>          -> open file
+//               #<encoded path>::<id>    -> open file + scroll to heading
+function handleRoute() {
+  const raw = location.hash.slice(1);
+  if (!raw) { if (FILES[0]) openFile(FILES[0].path); return; }
+  const [encPath, id] = raw.split('::');
+  const path = decodeURIComponent(encPath);
+  if (path !== currentPath) {
+    openFile(path);
+  } else if (id) {
+    const target = document.getElementById(decodeURIComponent(id));
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  }
+  closeNav();
+}
+
+// sidebar search filter
+function setupFilter() {
+  $('#filter').addEventListener('input', e => {
+    const q = e.target.value.trim().toLowerCase();
+    $$('.file-item').forEach(el => {
+      const hit = el.dataset.path.toLowerCase().includes(q);
+      el.style.display = hit ? '' : 'none';
+    });
+  });
+}
+
+// mobile nav
+function closeNav() { document.body.classList.remove('nav-open'); }
+$('#menu-btn').addEventListener('click', () => document.body.classList.toggle('nav-open'));
+$('#overlay').addEventListener('click', closeNav);
+
+(async function init() {
+  marked.setOptions({ breaks: true, gfm: true });
+  await loadManifest();
+  if (!FILES.length) return;
+  renderSidebar();
+  setupFilter();
+  window.addEventListener('hashchange', handleRoute);
+  handleRoute();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+name: Build markdown manifest
+
+# 每次有 .md 新增/修改/刪除時，自動掃描並更新 files.json
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '**.md'
+      - '.github/workflows/build-manifest.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-manifest
+  cancel-in-progress: true
+
+jobs:
+  manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate files.json
+        run: |
+          # 掃描所有 .md（排除 README 與 node_modules 等），依名稱排序輸出成 JSON 陣列
+          find . -type f -name '*.md' \
+            -not -path './.git/*' \
+            -not -path './node_modules/*' \
+            -not -iname 'README.md' \
+            -printf '%P\n' \
+            | LC_ALL=C sort \
+            | jq -R -s -c 'split("\n") | map(select(length > 0))' \
+            | jq '.' > files.json
+          cat files.json
+
+      - name: Commit if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet files.json; then
+            git add files.json
+            git commit -m "chore: update files.json [skip ci]"
+            git push
+          else
+            echo "files.json 無變更"
+          fi
