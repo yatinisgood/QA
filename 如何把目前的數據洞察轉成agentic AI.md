@@ -579,8 +579,10 @@ Agent 身上同時配備了「MCP 呼叫能力」與「Python 執行能力」。
 
 
 
-## 如圖mcp的架構中,mcp server要在list tools的時候把這些支援mcp的Api都介紹用途一次,相當於我用csv但是在每個csv都會描述用途一樣？
-這張架構圖選得太精準了！圖中最上面那句 **「MCP: Logic in model's reasoning layer (邏輯存在於模型的推理層)」** 直接道出了整個機制的核心。
+## Q:如圖mcp的架構中,mcp server要在list tools的時候把這些支援mcp的Api都介紹用途一次,相當於我用csv但是在每個csv都會描述用途一樣？
+![MCP架構](mcp_loginc.png)
+
+## AI:這張架構圖選得太精準了！圖中最上面那句 **「MCP: Logic in model's reasoning layer (邏輯存在於模型的推理層)」** 直接道出了整個機制的核心。
 
 你的理解 **100% 正確**。這兩者在「賦予 AI 認知能力」的本質上是完全等價的。
 
